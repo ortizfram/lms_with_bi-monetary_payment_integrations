@@ -19,10 +19,20 @@ const signup = async (req, res, next) => {
   //   encrypt password
   const hashedPass = bcrypt.hashSync(password);
 
+  const adminEmails = [
+    "ortizfranco48@gmail.com",
+    "mg.marcela@hotmail.com",
+    "buonavibraclub@gmail.com",
+    "marzettimarcela@gmail.com",
+  ];
+
+  const isAdmin = adminEmails.includes(email);
+
   const user = new User({
     name,
     email,
     password: hashedPass,
+    isAdmin,
   });
 
   try {
