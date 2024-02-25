@@ -1,6 +1,7 @@
 const User = require("../model/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const sendResetEmail = require("../utils/sendEmail")
 
 const signup = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -179,9 +180,50 @@ const getUser = async (req, res, next) => {
   return res.status(200).json({ user });
 };
 
+const forgot_password = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Find the user by email
+    const existingUser = await User.findOne({ email });
+
+    if (!existingUser) {
+      return res.status(404).json({ error: "Email not found" });
+    }
+
+    // Create JWT token for password reset
+    const payload = {
+      email: existingUser.email,
+      id: existingUser._id, // Assuming your user ID field is "_id"
+    };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    // Generate reset password link
+    const link = `${process.env.FRONTEND_URL}/reset-password/${existingUser._id}/${token}`;
+
+    // Send reset password email
+    await sendResetEmail(
+      email,
+      "Password Reset",
+      "Sending Reset password Token using Node JS & Nodemailer",
+      `<button><a href="${link}">Go to Reset Password</a></button>`
+    );
+
+    res
+      .status(200)
+      .json({ message: "Password reset email sent, check your mailbox." });
+  } catch (error) {
+    console.error("Error sending Email for password reset:", error);
+    res.status(500).json({ error: "Error sending reset email" });
+  }
+};
+
 exports.signup = signup;
 exports.login = login;
 exports.logout = logout;
 exports.verifyToken = verifyToken;
 exports.getUser = getUser;
 exports.refreshToken = refreshToken;
+exports.forgot_password = forgot_password;

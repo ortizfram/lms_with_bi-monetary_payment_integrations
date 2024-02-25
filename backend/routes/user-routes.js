@@ -1,5 +1,5 @@
 const express = require("express");
-const { signup, login, verifyToken, getUser, refreshToken, logout } = require("../controllers/user-controller");
+const { signup, login, verifyToken, getUser, refreshToken, logout, forgot_password } = require("../controllers/user-controller");
 
 const router = express.Router();
 
@@ -11,5 +11,6 @@ router.get("/user", verifyToken, getUser) //next middleware
 //! refresh token
 router.get("/refresh", refreshToken, verifyToken, getUser)
 router.post("/logout", verifyToken, logout)
+router.post("/forgot-password", forgot_password)
 
 module.exports = router;
