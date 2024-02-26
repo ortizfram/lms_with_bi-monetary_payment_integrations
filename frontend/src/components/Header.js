@@ -11,7 +11,7 @@ function Header() {
   const [value, setValue] = useState();
   const isLoggedIn = useSelector((state) => state.isLoggedIn);
   const sendLogoutRequest = async () => {
-    const res = await axios.post("http://localhost:4000/api/logout", null, {
+    const res = await axios.post("http://localhost:5000/api/logout", null, {
       withCredentials: true,
     });
     if (res.status == 200) {

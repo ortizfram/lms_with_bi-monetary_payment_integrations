@@ -8,7 +8,7 @@ export function Welcome() {
 
   const refreshToken = async () => {
     const res = await axios
-      .get("http://localhost:4000/api/refresh", {
+      .get("http://localhost:5000/api/refresh", {
         withCredentials: true,
       })
       .catch((err) => console.log(err));
@@ -18,7 +18,7 @@ export function Welcome() {
 
   const sendRequest = async () => {
     const res = await axios
-      .get("http://localhost:4000/api/user", {
+      .get("http://localhost:5000/api/user", {
         withCredentials: true,
       })
       .catch((err) => console.log(err));

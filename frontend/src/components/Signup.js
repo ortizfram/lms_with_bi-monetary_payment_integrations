@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TextField, Box, Button, Typography } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function Signup() {
   const history = useNavigate();
@@ -18,7 +18,7 @@ export function Signup() {
   };
   const sendRequest = async () => {
     const res = await axios
-      .post("http://localhost:4000/api/signup", {
+      .post("http://localhost:5000/api/signup", {
         name: inputs.name,
         email: inputs.email,
         password: inputs.password,
@@ -74,6 +74,7 @@ export function Signup() {
           <Button variant="contained" type="submit">
             Signup
           </Button>
+          <Link to="/login">Already have an account?</Link>
         </Box>
       </form>
     </div>

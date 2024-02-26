@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TextField, Box, Button, Typography } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {useDispatch } from "react-redux";
 import { authActions } from "../store";
 
@@ -20,7 +20,7 @@ export function Login() {
   };
   const sendRequest = async () => {
     const res = await axios
-      .post("http://localhost:4000/api/Login", {
+      .post("http://localhost:5000/api/Login", {
         email: inputs.email,
         password: inputs.password,
       })
@@ -67,6 +67,8 @@ export function Login() {
           <Button variant="contained" type="submit">
             Login
           </Button>
+          <Link to="/signup">Don't have an account yet?</Link>
+          <Link to="/forgot-password">Forgot your password?</Link>
         </Box>
       </form>
     </div>

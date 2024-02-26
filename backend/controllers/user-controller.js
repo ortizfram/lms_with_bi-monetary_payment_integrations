@@ -1,7 +1,7 @@
 const User = require("../model/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const sendResetEmail = require("../utils/sendEmail")
+const sendResetEmail = require("../utils/sendEmail");
 
 const signup = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -201,7 +201,7 @@ const forgot_password = async (req, res) => {
     });
 
     // Generate reset password link
-    const link = `${process.env.FRONTEND_URL}/reset-password/${existingUser._id}/${token}`;
+    const link = `${process.env.FRONTEND_URL}/api/reset-password/${existingUser._id}/${token}`;
 
     // Send reset password email
     await sendResetEmail(
@@ -220,6 +220,48 @@ const forgot_password = async (req, res) => {
   }
 };
 
+const reset_password = async (req, res, next) => {
+  try {
+    let { id, token } = req.params;
+    console.log(`id${id},token${token}`);
+    const { password, repeat_password } = req.body;
+
+    // Fetch user by id
+    const existingUser = await User.findById(id);
+    if (!existingUser) {
+      return res.status(400).json({ message: "User id not found" });
+    }
+
+    // Verify token
+    const secret = process.env.JWT_SECRET + existingUser.password;
+    const payload = jwt.verify(token, secret);
+
+    // Check if passwords match
+    if (password !== repeat_password) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update user's password
+    existingUser.password = hashedPassword;
+    await existingUser.save();
+
+    console.log("\n\nPassword updated\n\n");
+
+    // Send JSON response
+    res.status(200).json({
+      message:
+        "Password updated successfully. Please login with your new password.",
+      user: existingUser,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.signup = signup;
 exports.login = login;
 exports.logout = logout;
@@ -227,3 +269,4 @@ exports.verifyToken = verifyToken;
 exports.getUser = getUser;
 exports.refreshToken = refreshToken;
 exports.forgot_password = forgot_password;
+exports.reset_password = reset_password;
