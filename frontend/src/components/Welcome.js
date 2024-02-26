@@ -25,7 +25,7 @@ export function Welcome() {
     const data = await res.data;
     return data;
   };
-  
+
   useEffect(() => {
     if (firstRender) {
       firstRender = false;

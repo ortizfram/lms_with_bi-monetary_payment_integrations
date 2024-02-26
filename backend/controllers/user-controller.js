@@ -131,38 +131,38 @@ const verifyToken = async (req, res, next) => {
 //so not cookie not'll be deleted after 30s
 const refreshToken = async (req, res, next) => {
   const cookies = req.headers.cookie;
-  const prevToken = cookies.split("=")[1];
+  const prevToken = cookies ? cookies.split("=")[1] : null;
+  
   if (!prevToken) {
     return res.status(400).json({ message: "Couldn't find token" });
   }
-  jwt.verify(String(prevToken), process.env.JWT_SECRET, (err, user) => {
+  
+  jwt.verify(prevToken, process.env.JWT_SECRET, (err, user) => {
     if (err) {
       console.log(err);
       return res.status(403).json({ message: "Authentication failed" });
     }
 
-    //remove cookie
-    res.clearCookie(`${user.id}`);
-    req.cookies[`${user.id}`] = "";
-
-    // generate new token
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "35s",
+    // Generate new token
+    const newToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "15m", // Set the expiry time to a longer duration, e.g., 15 minutes
     });
-    console.log("Regenerated TOKEN\n", token);
+    console.log("Regenerated TOKEN\n", newToken);
 
-    // send token to cookie: cookie name: cookie val
-    res.cookie(String(user.id), token, {
+    // Update the existing token in the cookie with the new one
+    res.cookie("token", newToken, {
       path: "/",
-      expires: new Date(Date.now() + 1000 * 30),
-      httpOnly: true, //security
-      sameSite: "lax", //security
+      expires: new Date(Date.now() + 1000 * 60 * 15), // Expiry time set to 15 minutes
+      httpOnly: true, // Security
+      sameSite: "lax", // Security
     });
 
     req.id = user.id;
     next();
   });
 };
+
+
 
 const getUser = async (req, res, next) => {
   const userId = req.id;
