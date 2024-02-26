@@ -201,7 +201,7 @@ const forgot_password = async (req, res) => {
     });
 
     // Generate reset password link
-    const link = `${process.env.FRONTEND_URL}/api/reset-password/${existingUser._id}/${token}`;
+    const link = `${process.env.FRONTEND_URL}/reset-password/${existingUser._id}/${token}`;
 
     // Send reset password email
     await sendResetEmail(
@@ -213,7 +213,7 @@ const forgot_password = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Password reset email sent, check your mailbox." });
+      .json({ message: "Password reset email sent, check your mailbox.",data:{id:existingUser._id, token: token} });
   } catch (error) {
     console.error("Error sending Email for password reset:", error);
     res.status(500).json({ error: "Error sending reset email" });
@@ -232,9 +232,7 @@ const reset_password = async (req, res, next) => {
       return res.status(400).json({ message: "User id not found" });
     }
 
-    // Verify token
-    const secret = process.env.JWT_SECRET + existingUser.password;
-    const payload = jwt.verify(token, secret);
+    await jwt.verify(String(token), process.env.JWT_SECRET);
 
     // Check if passwords match
     if (password !== repeat_password) {
